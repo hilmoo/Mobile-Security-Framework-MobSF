@@ -150,6 +150,7 @@ APKPLZ = 'https://apkplz.net/download-app/'
 
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
+POSTGRES_SCHEMA = os.getenv('POSTGRES_SCHEMA', 'public')
 if (os.environ.get('POSTGRES_USER')
         and (os.environ.get('POSTGRES_PASSWORD')
              or os.environ.get('POSTGRES_PASSWORD_FILE'))
@@ -162,6 +163,9 @@ if (os.environ.get('POSTGRES_USER')
         'PASSWORD': get_secret_from_file_or_env('POSTGRES_PASSWORD'),
         'HOST': os.environ['POSTGRES_HOST'],
         'PORT': int(os.getenv('POSTGRES_PORT', 5432)),
+        'OPTIONS': {
+            'options': f'-c search_path={POSTGRES_SCHEMA},public'
+        },
     }
 else:
     # Sqlite3 support

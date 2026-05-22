@@ -1,24 +1,25 @@
 #!/bin/bash
 set -e
 
-POSTGRES_SCHEMA=${POSTGRES_SCHEMA:-public}
+POSTGRES_SCHEMA=${POSTGRES_SCHEMA:-mobsf}
 GUNICORN_PORT=${GUNICORN_PORT:-7000}
-
-python3 manage.py makemigrations
-python3 manage.py makemigrations StaticAnalyzer
 
 # Create schema if using Postgres
 if [ -n "$POSTGRES_USER" ] && [ -n "$POSTGRES_HOST" ]; then
     python3 -c "
 import django, os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mobsf.MobSF.settings')
 django.setup()
 from django.db import connection
-schema = os.getenv('POSTGRES_SCHEMA', 'public')
+schema = os.getenv('POSTGRES_SCHEMA', 'mobsf')
 with connection.cursor() as cursor:
     cursor.execute(f'CREATE SCHEMA IF NOT EXISTS {schema}')
 print(f'Schema \"{schema}\" ready.')
 "
 fi
+
+python3 manage.py makemigrations
+python3 manage.py makemigrations StaticAnalyzer
 
 python3 manage.py migrate
 
